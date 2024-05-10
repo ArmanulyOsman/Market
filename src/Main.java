@@ -1,5 +1,9 @@
+import Exceptions.IdNotFoundException;
+import Exceptions.UserNotFoundException;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -55,14 +59,28 @@ public class Main {
                     System.out.println("User password: ");
                     String password = scanner.nextLine();
 
-                    users.stream()
+                    Optional<User> authUser = users.stream()
                             .filter(user -> user.getLogin().equals(name))
-                            .findFirst()
-                            .ifPresent(user -> System.out.println("Successfully authenticated"));
+                            .findFirst();
+                    if (authUser.isEmpty()){
+                        try {
+                            throw new UserNotFoundException("Password or name incorrect");
+                        } catch (UserNotFoundException e) {
+                            System.out.println("Password or name incorrect!");
+                        }
+                    }
+
                     break;
                 case 3:
                     System.out.println("Product id: ");
                     int id = scanner.nextInt();
+                    if (id <= 0 || id >= products.size()){
+                        try {
+                            throw new IdNotFoundException("Product id not found");
+                        } catch (IdNotFoundException e) {
+                            System.out.println("Product id not found!");
+                        }
+                    }
                     productsToBasket.add(id);
                     System.out.println("Product added to basket");
                     break;
@@ -81,6 +99,13 @@ public class Main {
                 case 6:
                     System.out.println("Category id: ");
                     int categoryId = scanner.nextInt();
+                    if (categoryId <= 0 || categoryId > categories.size()) {
+                        try {
+                            throw new IdNotFoundException("Category id not found");
+                        } catch (IdNotFoundException e) {
+                            System.out.println("Category id not found!");
+                        }
+                    }
                     for (Integer i : categories.get(categoryId - 1).getProducts()) {
                         System.out.println(products.get(i).toString());
                     }
